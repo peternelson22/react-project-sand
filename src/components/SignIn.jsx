@@ -1,13 +1,34 @@
 import { useState } from "react";
 import logo from "../assets/undraw_welcome_cats_thqn.svg";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "./OAuth";
+import { toast } from "react-toastify";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const userCredentials = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (userCredentials.user) {
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error("Bad Credentials");
+    }
+  };
 
   return (
     <section>
@@ -19,7 +40,7 @@ const SignIn = () => {
           <img className="w-full rounded" src={logo} alt="sign-in" />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               className="tracking-wide mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               type="email"
@@ -75,7 +96,7 @@ const SignIn = () => {
             <div className="flex items-center my-4 before:border-t  before:flex-1  before:border-gray-300 after:border-t after:flex-1 after:border-gray-300">
               <p className="uppercase text-center font-semibold mx-4">or</p>
             </div>
-            <OAuth/>
+            <OAuth />
           </form>
         </div>
       </div>
