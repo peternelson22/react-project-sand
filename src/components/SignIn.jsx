@@ -48,7 +48,7 @@ const SignIn = () => {
               )}
             </div>
             <div className="flex justify-between md:whitespace-nowrap text-sm">
-              <p className="mb-6">
+              <p className="mb-4">
                 Don't have an account?{" "}
                 <Link
                   to="/sign-up"

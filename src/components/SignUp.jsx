@@ -1,8 +1,16 @@
 import { useState } from "react";
 import logo from "../assets/undraw_welcome_cats_thqn.svg";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "./OAuth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { db } from "../firebase";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -12,12 +20,41 @@ const SignUp = () => {
   });
   const { name, email, password } = formData;
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
   };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      });
+      const user = userCredential.user;
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+
+      await setDoc(doc(db, "users", user.uid), formDataCopy);
+      toast.success("Successfull Registration");
+
+      navigate("/");
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+
   return (
     <section>
       <h1 className="text-3xl text-center mt-6 font-bold font-serif">
@@ -28,7 +65,7 @@ const SignUp = () => {
           <img className="w-full rounded" src={logo} alt="sign-in" />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               className="tracking-wide mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               type="text"
@@ -67,7 +104,7 @@ const SignUp = () => {
               )}
             </div>
             <div className="flex justify-between md:whitespace-nowrap text-sm sm:text-md">
-              <p className="mb-2 sm:flex-1">
+              <p className="mb-4 sm:flex-1">
                 Already have an account?{" "}
                 <Link
                   to="/sign-in"
