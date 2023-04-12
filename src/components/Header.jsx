@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
   const pathRoute = (route) => {
     if (route === location.pathname) {
       return true;
@@ -25,7 +26,7 @@ const Header = () => {
             <li
               onClick={() => navigate("/")}
               className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${
-                pathRoute("/") && "text-black border-b-red-500"
+                pathRoute("/") && "text-black border-b-red-600"
               }`}
             >
               Home
@@ -33,7 +34,7 @@ const Header = () => {
             <li
               onClick={() => navigate("offers")}
               className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${
-                pathRoute("/offers") && "text-black border-b-red-500"
+                pathRoute("/offers") && "text-black border-b-red-600"
               }`}
             >
               Offers
@@ -41,7 +42,7 @@ const Header = () => {
             <li
               onClick={() => navigate("sign-in")}
               className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${
-                pathRoute("/sign-in") && "text-black border-b-red-500"
+                pathRoute("/sign-in") && "text-black border-b-red-600"
               }`}
             >
               Login

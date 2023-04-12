@@ -2,9 +2,22 @@ import { useState } from "react";
 import logo from "../assets/undraw_welcome_cats_thqn.svg";
 import { Link } from "react-router-dom";
 import OAuth from "./OAuth";
+import { toast } from "react-toastify";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Email sent");
+    } catch (error) {
+      toast.error("Could not send reset password");
+    }
+  };
 
   return (
     <section>
@@ -16,7 +29,7 @@ const ForgotPassword = () => {
           <img className="w-full rounded" src={logo} alt="sign-in" />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               className="tracking-wide mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               type="email"
@@ -24,8 +37,7 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
             />
-            <div className="relative mb-2">
-            </div>
+            <div className="relative mb-2"></div>
             <div className="flex justify-between whitespace-nowrap text-sm">
               <p className="mb-6">
                 Don't have an account?{" "}
@@ -36,7 +48,6 @@ const ForgotPassword = () => {
                   Register
                 </Link>
               </p>
-              
             </div>
             <button
               type="submit"
