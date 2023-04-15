@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logo from "../assets/undraw_welcome_cats_thqn.svg";
+import logo from "../assets/logo.svg";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "./OAuth";
