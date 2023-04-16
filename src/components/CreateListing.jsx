@@ -1,6 +1,20 @@
 import { useState } from "react";
+import Spinner from "./Spinner";
+import { toast } from "react-toastify";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { auth, db } from "../firebase";
+import { v4 as uuidv4 } from "uuid";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
+    const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "rent",
     name: "",
@@ -13,6 +27,7 @@ const CreateListing = () => {
     offer: false,
     regularPrice: 0,
     discountedPrice: 0,
+    images: {},
   });
   const {
     type,
@@ -26,12 +41,108 @@ const CreateListing = () => {
     offer,
     regularPrice,
     discountedPrice,
+    images,
   } = formData;
-  const onChange = () => {};
+  const onChange = (e) => {
+    let boolean = null;
+    if (e.target.value === "true") {
+      boolean = true;
+    }
+    if (e.target.value === "false") {
+      boolean = false;
+    }
+    if (e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files,
+      }));
+    }
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.id]: boolean ?? e.target.value,
+      }));
+    }
+  };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (+discountedPrice >= +regularPrice) {
+      setLoading(false);
+      toast.error("Discount needs to be less than regular price");
+      return;
+    }
+
+    if (images.length > 6) {
+      setLoading(false);
+      toast.error("Max of 6 images are allowed");
+      return;
+    }
+    const storeImage = async (image) => {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage();
+        const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+        const storageRef = ref(storage, filename);
+        const uploadTask = uploadBytesResumable(storageRef, image);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Observe state change events such as progress, pause, and resume
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+            switch (snapshot.state) {
+              case "paused":
+                console.log("Upload is paused");
+                break;
+              case "running":
+                console.log("Upload is running");
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+            reject(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    };
+    const imgUrls = await Promise.all(
+      [...images].map((image) => storeImage(image))
+    ).catch((error) => {
+      setLoading(false);
+      toast.error("Images not uploaded");
+      return;
+    });
+
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      timestamp: serverTimestamp(),
+    };
+    delete formDataCopy.images;
+    !formDataCopy.offer && delete formDataCopy.discountedPrice;
+
+    const docRef = await addDoc(collection(db, "listings"), formDataCopy);
+    setLoading(false);
+    toast.success("Listing created");
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+  };
+
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <main className="max-w-md px-2 mx-auto">
       <h1 className="text-3xl text-center mt-6 font-bold">Create Listing</h1>
-      <form>
+      <form onSubmit={onSubmit}>
         <p className="text-lg mt-6 font-semibold">Sell / Rent</p>
         <div className="flex">
           <button
@@ -51,7 +162,7 @@ const CreateListing = () => {
             onClick={onChange}
             type="button"
             id="type"
-            value="sale"
+            value="rent"
             className={`ml-3 px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
               type === "sale"
                 ? "bg-white text-black"
@@ -246,8 +357,8 @@ const CreateListing = () => {
         )}
         <div className="mb-6">
           <p className="text-lg font-semibold">Images</p>
-          <p className="text-gray-600">
-            The first image will be the cover (max 6)
+          <p className="text-gray-600 text-sm">
+            First image will be the cover (max 6) and (max 2MB) size per/image
           </p>
           <input
             onChange={onChange}
