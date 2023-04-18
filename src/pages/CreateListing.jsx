@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Spinner from "./Spinner";
+import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import {
   getDownloadURL,
@@ -13,7 +13,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "rent",
@@ -126,6 +126,7 @@ const CreateListing = () => {
       ...formData,
       imgUrls,
       timestamp: serverTimestamp(),
+      userRef: auth.currentUser.uid,
     };
     delete formDataCopy.images;
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
@@ -133,7 +134,7 @@ const CreateListing = () => {
     const docRef = await addDoc(collection(db, "listings"), formDataCopy);
     setLoading(false);
     toast.success("Listing created");
-    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`);
   };
 
   if (loading) {

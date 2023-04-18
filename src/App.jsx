@@ -1,15 +1,15 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Home from "./components/Home";
-import ForgotPassword from "./components/ForgotPassword";
-import Offers from "./components/Offers";
-import Profile from "./components/Profile";
-import SignIn from "./components/SignIn";
-import SignUp from "./components/SignUp";
+import Home from "./pages/Home";
+import ForgotPassword from "./pages/ForgotPassword";
+import Offers from "./pages/Offers";
+import Profile from "./pages/Profile";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import Header from "./components/Header";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./components/PrivateRoute";
-import CreateListing from "./components/CreateListing";
+import CreateListing from "./pages/CreateListing";
 
 function App() {
   return (

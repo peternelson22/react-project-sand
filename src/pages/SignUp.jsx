@@ -2,7 +2,7 @@ import { useState } from "react";
 import logo from "../assets/logo.svg";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import OAuth from "./OAuth";
+import OAuth from "../components/OAuth";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
