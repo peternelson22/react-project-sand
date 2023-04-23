@@ -75,7 +75,7 @@ const Listing = () => {
         </p>
       )}
       <div className="lg:mx-auto mx-auto bg-white">
-        <div className="h-[300px] lg:h-[500] mt-3 bg-blue-100 rounded shadow-lg mb-6">
+        <div className="h-[300px] lg:h-[500] mt-3 bg-slate-100 rounded shadow-sm mb-6">
           <div className="grid place-items-center px-3">
             <p className="text-2xl font-bold mb-1 mt-5 text-blue-800 sm:text-sm lg:text-2xl md:text-2xl">
               {listing.name} - $

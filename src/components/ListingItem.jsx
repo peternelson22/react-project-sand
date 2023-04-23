@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { auth } from "../firebase";
 
 const ListingItem = ({ listing, id, onDelete, onEdit }) => {
   return (
@@ -56,17 +57,21 @@ const ListingItem = ({ listing, id, onDelete, onEdit }) => {
           </div>
         </div>
       </Link>
-      {onDelete && (
-        <FaTrash
-          className="absolute bottom-2 right-2 h-[14px] cursor-pointer text-red-500"
-          onClick={() => onDelete(listing.id)}
-        />
-      )}
-      {onEdit && (
-        <MdEdit
-          className="absolute bottom-2 right-7 h-4 cursor-pointer"
-          onClick={() => onEdit(listing.id)}
-        />
+      {listing.userRef === auth.currentUser.uid && (
+        <div>
+          {onDelete && (
+            <FaTrash
+              className="absolute bottom-2 right-2 h-[14px] cursor-pointer text-red-500"
+              onClick={() => onDelete(listing.id)}
+            />
+          )}
+          {onEdit && (
+            <MdEdit
+              className="absolute bottom-2 right-7 h-4 cursor-pointer"
+              onClick={() => onEdit(listing.id)}
+            />
+          )}
+        </div>
       )}
     </li>
   );
