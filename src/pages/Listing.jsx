@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import Spinner from "../components/Spinner";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { FaBath, FaShare, FaMapMarkerAlt, FaBed, FaParking, FaChair } from "react-icons/fa";
+import {
+  FaBath,
+  FaShare,
+  FaMapMarkerAlt,
+  FaBed,
+  FaParking,
+  FaChair,
+} from "react-icons/fa";
 import SwiperCore, {
   Autoplay,
   EffectFade,
@@ -12,12 +19,14 @@ import SwiperCore, {
   Pagination,
 } from "swiper";
 import "swiper/css/bundle";
+import Contact from "../components/Contact";
 
 const Listing = () => {
   const params = useParams();
   const [listing, setListing] = useState([]);
   const [loading, setLoading] = useState(true);
   const [shareLinkCopy, setShareLinkCopy] = useState(false);
+  const [contactLandlord, setContactLandlord] = useState(false);
   SwiperCore.use([Autoplay, Navigation, Pagination]);
 
   useEffect(() => {
@@ -75,9 +84,9 @@ const Listing = () => {
         </p>
       )}
       <div className="lg:mx-auto mx-auto bg-white">
-        <div className="h-[300px] lg:h-[500] mt-3 bg-slate-100 rounded shadow-sm mb-6">
+        <div className="mt-3 bg-slate-100 rounded shadow-sm mb-6">
           <div className="grid place-items-center px-3">
-            <p className="text-2xl font-bold mb-1 mt-5 text-blue-800 sm:text-sm lg:text-2xl md:text-2xl">
+            <p className="text-lg font-bold mb-1 mt-5 text-blue-800 md:text-2xl">
               {listing.name} - $
               {listing.offer
                 ? listing.discountedPrice
@@ -92,12 +101,12 @@ const Listing = () => {
               <FaMapMarkerAlt className="text-green-700 mr-1" />
               {listing.address}
             </p>
-            <div className="flex justify-center items-center space-x-4 w-[75%]">
-              <p className="bg-red-800 w-full max-w-[200px] rounded-md p-1 text-white text-center font-semibold shadow-md">
+            <div className="flex justify-center items-center space-x-4 w-[300px] md:w-[410px]">
+              <p className="bg-red-800 w-full max-w-[250px] rounded-md p-1 text-white text-center font-semibold shadow-md">
                 {listing.type === "rent" ? "For Rent" : "For Sale"}
               </p>
               {listing.offer && (
-                <p className="w-full max-w-[200px] bg-green-800 rounded-md p-1 text-white text-center font-semibold shadow-md">
+                <p className="w-full max-w-[250px] bg-green-800 rounded-md p-1 text-white text-center font-semibold shadow-md">
                   ${listing.regularPrice - listing.discountedPrice} discount
                 </p>
               )}
@@ -130,6 +139,15 @@ const Listing = () => {
                 </li>
               </ul>
             </div>
+            {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
+              <button
+                onClick={() => setContactLandlord(true)}
+                className="px-7 py-3 bg-blue-600 text-white font-medium uppercase text-sm rounded shadow-md hover:bg-blue-700 hover:shadow-lg mt-4 focus:bg-blue-700 focus:shadow-lg w-[260px] md:w-[420px] sm:w-[300px] transition duration-150 ease-in-out"
+              >
+                Contact landlord
+              </button>
+            )}
+            {contactLandlord && <Contact userRef={listing.userRef} listing={listing} />}
           </div>
         </div>
       </div>
